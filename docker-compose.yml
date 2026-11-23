@@ -9,6 +9,7 @@ services:
       APP_USER_PASSWORD: ${APP_USER_PASSWORD}
     volumes:
       - oradata:/opt/oracle/oradata
+      - ./db/migrations:/migrations
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 10s
