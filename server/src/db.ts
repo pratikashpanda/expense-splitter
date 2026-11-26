@@ -1,6 +1,8 @@
 import oracledb from "oracledb";
 import { config } from "./config.js";
 
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
+
 let pool: oracledb.Pool | undefined;
 
 export async function initPool() {
@@ -28,3 +30,6 @@ export async function withConnection<T>(
     conn.close();
   }
 }
+
+export const isUniqueViolation = (err: unknown): boolean =>
+  (err as { errorNum?: number })?.errorNum === 1;
