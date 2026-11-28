@@ -6,28 +6,18 @@ import express, {
 import cors from "cors";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
-import { withConnection } from "./db.js";
+import { apiRouter } from "./routes.js";
+import { notFound } from "./middleware/notFound.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 export const app = express();
 
-app.use(cors());
 app.use(helmet());
+app.use(cors());
 app.use(express.json());
 app.use(pinoHttp());
 
-app.get("/health", async (req, res) => {
-  try {
-    await withConnection((conn) => conn.execute("SELECT 1 FROM DUAL"));
-    res.json({ status: "OK" });
-  } catch (err) {
-    req.log.error(err);
-    res.status(503).json({ status: "error" });
-  }
-});
+app.use(apiRouter);
 
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
-  req.log.error(err);
-  res.status(500).json({
-    error: { code: "INTERNAL", message: "Something went wrong" },
-  });
-});
+app.use(notFound);
+app.use(errorHandler);
